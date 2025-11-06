@@ -7,108 +7,34 @@
 <style>
 body {
     margin:0;
-    padding:0;
-    background: linear-gradient(to bottom, #a0c8f0, #e0f0ff);
+    padding:20px;
+    background: linear-gradient(to bottom, #c0d8f0, #eaf2fc);
     font-family:"Tahoma", sans-serif;
-    overflow: hidden;
 }
-
-/* XP Taskbar */
-#taskbar {
-    position: fixed;
-    bottom:0;
-    left:0;
-    width:100%;
-    height:40px;
-    background:#004080;
-    display:flex;
-    align-items:center;
-    padding:0 10px;
-    color:white;
-    box-shadow:0 -2px 5px rgba(0,0,0,0.3);
+h1 {
+    text-align:center;
+    margin-bottom:30px;
+    font-size:2.5em;
+    color:#003366;
+    text-shadow:1px 1px #fff;
 }
-#start-btn {
-    background:#c0d8f0;
-    color:#000;
-    padding:5px 10px;
-    border:2px solid #004080;
-    border-radius:2px;
-    cursor:pointer;
-    font-weight:bold;
-    margin-right:10px;
+.section {
+    margin-bottom:40px;
 }
-#start-menu {
-    position:absolute;
-    bottom:40px;
-    left:10px;
-    width:200px;
-    background:#c0d8f0;
-    border:2px solid #004080;
-    display:none;
-    flex-direction:column;
+.section h2 {
+    margin-bottom:15px;
+    font-size:1.8em;
+    color:#004080;
+    border-bottom:2px solid #004080;
+    padding-bottom:5px;
 }
-#start-menu a {
-    padding:8px 10px;
-    border-bottom:1px solid #004080;
-    text-decoration:none;
-    color:#000;
-}
-#start-menu a:hover {
-    background:#e0eaff;
-}
-
-/* XP Window */
-#xp-window {
-    width: 90%;
-    max-width: 1000px;
-    height: 80%;
-    background:#e0eaff;
-    border:3px solid #004080;
-    border-radius:4px;
-    position:absolute;
-    top:50px;
-    left:50%;
-    transform:translateX(-50%);
-    box-shadow:5px 5px 20px rgba(0,0,0,0.5);
-    display:flex;
-    flex-direction:column;
-}
-
-/* Title Bar */
-#title-bar {
-    background:#004080;
-    color:white;
-    padding:5px 10px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    cursor:move;
-    user-select:none;
-}
-#title-bar span {font-weight:bold;}
-#title-bar button {
-    background:#c0d8f0;
-    border:1px solid #004080;
-    cursor:pointer;
-    width:25px;
-    height:20px;
-}
-
-/* Window Content */
-#window-content {
-    padding:15px;
-    flex:1;
-    overflow:auto;
-}
-
-/* Link Grid */
 .link-grid {
     display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(160px,1fr));
+    grid-template-columns:repeat(auto-fit, minmax(150px,1fr));
     gap:12px;
 }
 .link-item {
-    background:#f0f8ff;
+    background:#e0eaff;
     border:2px solid #004080;
     border-radius:4px;
     padding:10px;
@@ -120,121 +46,193 @@ body {
     align-items:center;
 }
 .link-item:hover {
-    transform: translateY(-4px) scale(1.05);
-    box-shadow:0 4px 12px rgba(0,0,0,0.3);
+    transform: translateY(-3px) scale(1.03);
+    box-shadow:0 4px 10px rgba(0,0,0,0.2);
+    background:#f0f8ff;
 }
-.link-item img {width:40px;height:40px;margin-bottom:8px;}
-.link-item span {font-size:0.9em; text-align:center;}
-
-/* Fade animation */
-@keyframes fadeInUp {0% {opacity:0; transform:translateY(20px);} 100% {opacity:1; transform:translateY(0);}}
-.animated {animation:fadeInUp 0.5s ease forwards;}
+.link-item img {
+    width:40px;
+    height:40px;
+    margin-bottom:8px;
+}
+.link-item span {
+    font-size:0.9em;
+    text-align:center;
+}
+@keyframes fadeInUp {
+    0% {opacity:0; transform:translateY(15px);}
+    100% {opacity:1; transform:translateY(0);}
+}
+.animated {animation: fadeInUp 0.4s ease forwards;}
 </style>
 </head>
 <body>
 
-<div id="xp-window">
-    <div id="title-bar">
-        <span>XP Link Hub</span>
-        <div>
-            <button onclick="minimize()">_</button>
-            <button onclick="closeWindow()">X</button>
-        </div>
-    </div>
-    <div id="window-content">
-        <h2>Games</h2>
-        <div class="link-grid" id="games-grid"></div>
-        <h2>Emulators</h2>
-        <div class="link-grid" id="emulators-grid"></div>
-        <h2>Puzzle & Learning</h2>
-        <div class="link-grid" id="puzzle-grid"></div>
-        <h2>Misc / Fun</h2>
-        <div class="link-grid" id="misc-grid"></div>
-    </div>
+<h1>XP Link Hub</h1>
+
+<div class="section" id="games">
+    <h2>Games</h2>
+    <div class="link-grid" id="games-grid"></div>
 </div>
 
-<div id="taskbar">
-    <div id="start-btn">Start</div>
-    <div id="start-menu">
-        <a href="#games">Games</a>
-        <a href="#emulators">Emulators</a>
-        <a href="#puzzle">Puzzle</a>
-        <a href="#misc">Misc / Fun</a>
-    </div>
+<div class="section" id="emulators">
+    <h2>Emulators & Retro</h2>
+    <div class="link-grid" id="emulators-grid"></div>
+</div>
+
+<div class="section" id="puzzle">
+    <h2>Puzzle & Learning</h2>
+    <div class="link-grid" id="puzzle-grid"></div>
+</div>
+
+<div class="section" id="misc">
+    <h2>Misc / Fun</h2>
+    <div class="link-grid" id="misc-grid"></div>
 </div>
 
 <script>
-// Start Menu Toggle
-document.getElementById('start-btn').addEventListener('click', ()=>{
-    const menu = document.getElementById('start-menu');
-    menu.style.display = menu.style.display === 'flex' ? 'none':'flex';
-});
-
-// Window Drag
-const xpWindow = document.getElementById('xp-window');
-const titleBar = document.getElementById('title-bar');
-let isDragging=false, offsetX=0, offsetY=0;
-titleBar.addEventListener('mousedown', e=>{
-    isDragging=true;
-    offsetX = e.clientX - xpWindow.offsetLeft;
-    offsetY = e.clientY - xpWindow.offsetTop;
-});
-document.addEventListener('mouseup', ()=>isDragging=false);
-document.addEventListener('mousemove', e=>{
-    if(isDragging){
-        xpWindow.style.left = (e.clientX - offsetX)+'px';
-        xpWindow.style.top = (e.clientY - offsetY)+'px';
-    }
-});
-
-// Window Buttons
-function minimize(){ xpWindow.style.display='none'; setTimeout(()=>xpWindow.style.display='flex',500); }
-function closeWindow(){ xpWindow.style.display='none'; }
-
-// Sample Links
+// ALL LINKS LISTED AS OBJECTS
 const games = [
-    {name:"Diep.io", url:"https://diep.io/"},
-    {name:"Agar.io", url:"https://agar.io/"},
-    {name:"Slither.io", url:"https://slither.io/"},
-    {name:"ZombsRoyale.io", url:"https://zombsroyale.io/"},
-    {name:"Hole.io", url:"https://hole-io.com/"},
-];
-const emulators = [
-    {name:"Emupedia / EmuOS", url:"https://emupedia.net/beta/emuos/"},
-    {name:"Windows 93", url:"http://v1.windows93.net/"},
-];
-const puzzle = [
-    {name:"Math Playground", url:"https://www.mathplayground.com/fun-skill-games.html"},
-    {name:"QuickDraw", url:"https://quickdraw.withgoogle.com/"},
-];
-const misc = [
-    {name:"Elgoog", url:"https://elgoog.im/"},
-    {name:"BitLife", url:"https://bitlifeonline.io/home"},
+{name:"Win10 Games Hub", url:"https://win10.webjeet.me/"},
+{name:"Diep.io", url:"https://diep.io/"},
+{name:"Agar.io", url:"https://agar.io/"},
+{name:"Classic Games Online", url:"https://classicgamesonline.com/"},
+{name:"ZombsRoyale.io", url:"https://zombsroyale.io/"},
+{name:"Holeo", url:"https://hole-io.com/"},
+{name:"Wings.io", url:"https://wings.io/"},
+{name:"Jopi.io", url:"https://jopi.io/"},
+{name:"Deeeep.io", url:"https://deeeep.io/"},
+{name:"Dino.io", url:"https://dino.io/"},
+{name:"Monste.io", url:"https://monste.io/"},
+{name:"Brutal.io", url:"https://brutal.io/"},
+{name:"Paper.io", url:"https://paper-io.com/"},
+{name:"QuickDraw", url:"https://quickdraw.withgoogle.com/"},
+{name:"Maths playground", url:"https://www.mathplayground.com/fun-skill-games.html"},
+{name:"Slither.io", url:"https://slither.io/"},
+{name:"Yorg.io", url:"https://yorg.io/"},
+{name:"Vengeance.io", url:"https://venge.io/"},
+{name:"Warbot.io", url:"https://warbot.io/"},
+{name:"Garlic.io", url:"https://garlic.io/"},
+{name:"Snake.io", url:"https://snake.io/"},
+{name:"Card games.io", url:"https://cardgames.io/"},
+{name:"Symboloo.com", url:"https://symboloo.com/"},
+{name:"Zombs.io", url:"https://zombs.io/"},
+{name:"Hordes.io", url:"https://hordes.io/"},
+{name:"Chess.com", url:"https://www.chess.com/"},
+{name:"Deftly.io", url:"https://deftly.io/"},
+{name:"GeForce.com", url:"https://www.geforce.com/"},
+{name:"Kour.io", url:"https://kour.io/"},
+{name:"Neal.fun", url:"https://neal.fun/"},
+{name:"QuickDraw Google", url:"https://quickdraw.withgoogle.com/"},
+{name:"Hole.io", url:"https://hole-io.com/"},
+{name:"Deadshot.io", url:"https://deadshot.io/"},
+{name:"Oasis Starting Point", url:"https://oasis.decart.ai/starting-point?journey=Dense+Forest"},
+{name:"BitLife", url:"https://bitlifeonline.io/home"},
+{name:"Akinator", url:"https://en.akinator.com/"},
+{name:"Armor Games", url:"https://armorgames.com/"},
+{name:"FreeGames.com", url:"https://www.freegames.com/"},
+{name:"Lagged.com", url:"https://lagged.com/en/"},
+{name:"GamePix.com", url:"https://www.gamepix.com/"},
+{name:"Jetpack Joyride", url:"https://jetpack-joyride.github.io/"},
+{name:"Pogo.com", url:"https://www.pogo.com/"},
+{name:"Gamezop", url:"https://www.gamezop.com/en"},
+{name:"Jopi.com", url:"https://www.jopi.com/"},
+{name:"Poki.ac", url:"https://poki.ac/"},
+{name:"Friv2online", url:"https://www.friv2online.com/poki-games"},
+{name:"KoalaBeast", url:"https://koalabeast.com/"},
+{name:"Lexaloffle", url:"https://www.lexaloffle.com/bbs/?pid=136646#playing"},
+{name:"Fallen London", url:"https://www.fallenlondon.com/"},
+{name:"Granblue Fantasy", url:"https://granbluefantasy.jp/sp/en/"},
+{name:"Corru Observer", url:"https://corru.observer/"},
+{name:"AmongUsPlay", url:"https://amongusplay.online/"},
+{name:"Narrow.one", url:"https://narrow.one/"},
+{name:"Poki2 Online", url:"https://poki.com/"},
+{name:"FreeGames.org", url:"https://freegames.org/"},
+{name:"Cool Math Games", url:"https://www.coolmathgames.com/"},
+{name:"Territorial.io", url:"https://territorial.io/"},
+{name:"Emupedia / EmuOS", url:"https://emupedia.net/beta/emuos/"},
+{name:"IzzyGames", url:"https://www.izzygames.com/exhibit-of-sorrows-t6997.html?fullscreen=true"},
+{name:"Desura Games", url:"https://www.desura.games/ipad-games"},
+{name:"Kevin Games Slendrina", url:"https://kevin.games/slendrina-must-die-the-cellar"},
+{name:"Toogame", url:"https://www.toogame.com/"},
+{name:"Windows 93", url:"http://v1.windows93.net/"},
+{name:"Polytrack", url:"https://www.kodub.com/apps/polytrack"},
+{name:"Now.gg", url:"https://now.gg/"},
+{name:"PlayRetroGames", url:"https://playretrogames.online/"},
+{name:"Play3DGame", url:"https://play3dgame.com/"},
+{name:"Gamaverse Mobile", url:"https://gamaverse.com/mobile/"},
+{name:"FreeRiderHD", url:"https://www.freeriderhd.com/"},
+{name:"KBHGames", url:"https://kbhgames.com/"},
+{name:"PlayEmulator Pokemon", url:"https://www.playemulator.io/games/pokemon-online/"},
+{name:"Pokemon Showdown", url:"https://play.pokemonshowdown.com/"},
+{name:"Drift.io", url:"https://drift.io/?room=nedRVhuAq"},
+{name:"Time Shooter 2", url:"https://watchdocumentaries.com/time-shooter-2-game/"},
+{name:"Venge.io", url:"https://venge.io/"},
+{name:"Combat Reloaded", url:"https://www.gameflare.com/online-game/combat-reloaded/"},
+{name:"Tetris", url:"https://www.lumpty.com/amusements/games/tetris/tetris.html"},
+{name:"PlayClassic Games", url:"https://playclassic.games/games/"},
+{name:"ArcadeSpot", url:"https://arcadespot.com/"},
+{name:"MCraft", url:"https://mcraft.fun/"},
+{name:"Two Player Games", url:"https://www.twoplayergames.org/"},
+{name:"Slowroads.io", url:"https://slowroads.io/"},
+{name:"Games Unblocked", url:"https://sites.google.com/view/games-unblocked/"},
+{name:"Slice-Master.io", url:"https://slice-master.io/"},
+{name:"MisterFonka Cave", url:"https://misterfonka.github.io/Unblocked-Cave/games/games.html"},
+{name:"BasketBros.io", url:"https://basketbrosio.com/"},
+{name:"GameSnacks", url:"https://gamesnacks.com/"},
+{name:"Yapi Games", url:"https://www.yapigames.com/mobilegames/"},
+{name:"NoInternetGame", url:"https://nointernetgame.com/"},
+{name:"CatMario", url:"https://catmario.eu/"},
+{name:"PCJS", url:"https://www.pcjs.org/blog/2015/09/21/"},
+{name:"VirtualXP", url:"https://lrusso.github.io/VirtualXP/VirtualXP.htm"},
+{name:"Win10 WebJeet", url:"https://win10.webjeet.me/"},
+{name:"Elgoog", url:"https://elgoog.im/"},
+{name:"MyEmulator", url:"https://myemulator.onl/"},
+{name:"Internet Arcade", url:"https://archive.org/details/internetarcade"},
+{name:"RomsFun", url:"https://romsfun.com/"},
+{name:"Watch Documentaries Games", url:"https://watchdocumentaries.com/games/"},
+{name:"Gameflare Hub", url:"https://www.gameflare.com/"},
+{name:"PlayHop", url:"https://playhop.com/"},
+{name:"Survival Race", url:"https://www.onlinegames.io/survival-race/index.html"},
+{name:"Miniclip", url:"https://www.miniclip.com/"},
+{name:"Cartoon Network Games", url:"https://www.cartoonnetwork.co.uk/games"},
+{name:"Skibidi.io", url:"https://skibidi.io/games"},
+{name:"Eaglercraft", url:"https://eaglercraft.q13x.com/1.8-js/?retina=true"},
+{name:"MathPlayZone Arcade", url:"https://mathplayzone.com/arcade/"},
+{name:"CookieClicker.one", url:"https://cookieclicker.one/"},
+{name:"AngusNicNeven", url:"https://angusnicneven.com/"},
+{name:"Pokerogue.io", url:"https://pokerogue.io/"},
+{name:"Tetr.io", url:"https://tetr.io/"},
+{name:"UG17 Games", url:"https://ug17.github.io/"},
+{name:"MAFA.com", url:"https://www.mafa.com/"},
+{name:"Crossy-Road.io", url:"https://crossy-road.io/"},
+{name:"Crossy-Road", url:"https://crossy-road.com/"},
+{name:"Games-Site", url:"https://games-site.github.io/"},
+{name:"UG17 Games2", url:"https://ug17.github.io/"},
+{name:"AzGames.io", url:"https://azgames.io/?gid=S50"},
+{name:"Uptoplay.net", url:"https://uptoplay.net/"},
 ];
 
-// Render Links
-function renderLinks(arr,id){
-    const grid=document.getElementById(id);
-    arr.forEach((link,i)=>{
-        const a=document.createElement('a');
-        a.href=link.url;
+function renderLinks(links, containerId){
+    const grid = document.getElementById(containerId);
+    links.forEach((link,index)=>{
+        const a = document.createElement('a');
+        a.href = link.url;
         a.target="_blank";
-        a.className='link-item animated';
-        a.style.animationDelay=`${i*0.05}s`;
-        const img=document.createElement('img');
-        img.src=link.icon||'https://via.placeholder.com/50';
-        img.alt=link.name;
-        const span=document.createElement('span');
-        span.textContent=link.name;
+        a.className = 'link-item animated';
+        a.style.animationDelay = `${index*0.01}s`; // subtle stagger
+        const img = document.createElement('img');
+        img.src = `https://www.google.com/s2/favicons?domain=${link.url}`; // auto favicon
+        img.alt = link.name;
+        const span = document.createElement('span');
+        span.textContent = link.name;
         a.appendChild(img);
         a.appendChild(span);
         grid.appendChild(a);
     });
 }
-renderLinks(games,'games-grid');
-renderLinks(emulators,'emulators-grid');
-renderLinks(puzzle,'puzzle-grid');
-renderLinks(misc,'misc-grid');
+
+renderLinks(games, 'games-grid');
 </script>
 
 </body>
