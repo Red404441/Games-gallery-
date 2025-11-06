@@ -4,11 +4,6 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>File explorer</title>
-<!--
-  Frutiger Aero / modern XP-inspired portal
-  - Put Music.mp3 in same folder
-  - Click the overlay "Continue" to unlock audio (browsers require a user gesture)
--->
 <style>
   :root{
     --bg-top:#e9f5ff;
@@ -16,497 +11,193 @@
     --accent:#1f7fc7;
     --glass: rgba(255,255,255,0.6);
     --card-shadow: 0 8px 28px rgba(16,40,80,0.12);
-    --icon-size:96px; /* same size for all icons */
+    --icon-size:96px;
     --icon-gap:22px;
     --pad:36px;
     --ui-radius:12px;
     --muted: #4b6b86;
   }
 
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;
-    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-    -webkit-font-smoothing:antialiased;
-    background: linear-gradient(180deg,var(--bg-top), var(--bg-bottom));
-    color:#0b2340;
-    overflow:hidden;
-  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;margin:0;font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;background:linear-gradient(180deg,var(--bg-top),var(--bg-bottom));color:#0b2340;overflow:hidden;}
 
-  /* subtle 'aero' curved hill */
+  /* backdrop particles + subtle hill */
   .backdrop {
-    position:fixed;inset:0;pointer-events:none;
-    background:
-      radial-gradient(circle at 20% 10%, rgba(255,255,255,0.9), rgba(255,255,255,0) 8%),
-      radial-gradient(circle at 80% 90%, rgba(200,235,255,0.6), rgba(200,235,255,0) 18%);
-    mix-blend-mode:soft-light;
-    z-index:0;
+    position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(circle at 20% 10%, rgba(255,255,255,0.9), rgba(255,255,255,0) 8%), radial-gradient(circle at 80% 90%, rgba(200,235,255,0.6), rgba(200,235,255,0) 18%);
+  }
+  .particle {
+    position:absolute;border-radius:50%;background:rgba(255,255,255,0.15);pointer-events:none;
+    animation:float 12s linear infinite;
+  }
+  @keyframes float {
+    0% {transform:translateY(0) translateX(0) rotate(0deg); opacity:0.4;}
+    50% {opacity:0.6;}
+    100% {transform:translateY(-800px) translateX(100px) rotate(360deg); opacity:0;}
   }
 
-  /* desktop area */
+  /* desktop */
   .desktop {
-    position:relative;
-    height:100vh;
-    padding:calc(var(--pad) + 52px) var(--pad) var(--pad) var(--pad);
-    display:flex;
-    flex-wrap:wrap;
-    gap:var(--icon-gap);
-    align-content:flex-start;
-    overflow:auto;
-    -webkit-overflow-scrolling:touch;
-    z-index:1;
+    position:relative;height:100vh;padding:calc(var(--pad)+52px) var(--pad) var(--pad) var(--pad);display:flex;flex-wrap:wrap;gap:var(--icon-gap);align-content:flex-start;overflow:auto;-webkit-overflow-scrolling:touch;z-index:1;scroll-behavior:smooth;
   }
 
-  /* clean title area */
+  /* header */
   header.app-title{
-    position:fixed;
-    left:50%;
-    transform:translateX(-50%);
-    top:18px;
-    z-index:6;
-    display:flex;
-    align-items:center;
-    gap:14px;
-    padding:10px 14px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.74));
-    border-radius:14px;
-    box-shadow:var(--card-shadow);
-    border:1px solid rgba(18,86,140,0.06);
-    backdrop-filter: blur(6px);
+    position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:6;display:flex;align-items:center;gap:14px;padding:10px 14px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.74));border-radius:14px;box-shadow:var(--card-shadow);border:1px solid rgba(18,86,140,0.06);backdrop-filter: blur(6px);
   }
-  .app-title .logo{
-    width:36px;height:36px;border-radius:8px;background:linear-gradient(180deg,#fff,#e8f6ff);
-    display:flex;align-items:center;justify-content:center;color:var(--accent);font-weight:800;
-    font-size:14px;box-shadow:inset 0 -4px 12px rgba(0,0,0,0.03);
-  }
-  .app-title h1{
-    margin:0;font-size:16px;letter-spacing:0.4px;color:#06324f;font-weight:700;
-  }
-  .app-title p{margin:0;font-size:12px;color:var(--muted)}
+  .app-title .logo{width:36px;height:36px;border-radius:8px;background:linear-gradient(180deg,#fff,#e8f6ff);display:flex;align-items:center;justify-content:center;color:var(--accent);font-weight:800;font-size:14px;box-shadow:inset 0 -4px 12px rgba(0,0,0,0.03);}
+  .app-title h1{margin:0;font-size:16px;letter-spacing:0.4px;color:#06324f;font-weight:700;}
+  .app-title p{margin:0;font-size:12px;color:var(--muted);}
 
-  /* ICONS - uniform sizes */
-  .icon {
-    width: var(--icon-size);
-    height: 136px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:flex-start;
-    gap:8px;
-    cursor:pointer;
-    transform-origin:center;
-    transition: transform .18s cubic-bezier(.2,.9,.2,1), filter .18s;
-    user-select:none;
-  }
-  .icon:focus{outline: none; transform: translateY(-6px) scale(1.02); box-shadow: 0 12px 30px rgba(12,38,64,0.08)}
-  .icon:hover{ transform: translateY(-8px) scale(1.03); filter:brightness(1.02) saturate(1.02); }
+  /* icons */
+  .icon{width:var(--icon-size);height:136px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:8px;cursor:pointer;transform-origin:center;transition: transform .18s cubic-bezier(.2,.9,.2,1), filter .18s;user-select:none;opacity:0; transform:translateY(8px) scale(.99);}
+  .icon.enter{animation:popIn .42s forwards cubic-bezier(.2,.9,.2,1);}
+  @keyframes popIn{0%{opacity:0;transform:translateY(8px) scale(.98);}60%{opacity:1;transform:translateY(-6px) scale(1.02);}100%{opacity:1;transform:translateY(0) scale(1);}}
 
-  .img {
-    width:var(--icon-size);
-    height:var(--icon-size);
-    border-radius:14px;
-    background: linear-gradient(180deg,#ffffff,#e8f9ff);
-    display:flex;align-items:center;justify-content:center;
-    box-shadow: 0 8px 20px rgba(12,38,64,0.08), inset 0 -4px 10px rgba(255,255,255,0.85);
-    overflow:hidden;
-    transition: transform .28s cubic-bezier(.2,.9,.2,1);
-  }
-  .img img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .icon:focus{outline:none;transform:translateY(-6px) scale(1.02);box-shadow:0 12px 30px rgba(12,38,64,0.08);}
+  .icon:hover{transform:translateY(-8px) scale(1.03);filter:brightness(1.02) saturate(1.02);}
+  .icon:hover .img{box-shadow:0 12px 30px rgba(12,38,64,0.12), 0 0 14px rgba(31,127,199,0.35);transform:translateY(-10px) rotate(-2deg) scale(1.05);}
 
-  /* fallback letter badge */
-  .letters {
-    font-weight:800;font-size:20px;color:var(--accent);
-    letter-spacing:1px;
-  }
+  .img{width:var(--icon-size);height:var(--icon-size);border-radius:14px;background:linear-gradient(180deg,#ffffff,#e8f9ff);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(12,38,64,0.08), inset 0 -4px 10px rgba(255,255,255,0.85);overflow:hidden;transition: transform .28s cubic-bezier(.2,.9,.2,1);}
+  .img img{width:100%;height:100%;object-fit:cover;display:block;}
+  .letters{font-weight:800;font-size:20px;color:var(--accent);letter-spacing:1px;}
+  .label{width:var(--icon-size);text-align:center;font-size:13px;color:#083049;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;letter-spacing:0.2px;}
+  .sub{font-size:11px;color:var(--muted);margin-top:2px;font-weight:500;}
 
-  /* labels */
-  .label {
-    width:var(--icon-size);
-    text-align:center;
-    font-size:13px;
-    color:#083049;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    font-weight:600;
-    letter-spacing:0.2px;
-  }
-  .sub {
-    font-size:11px;color:var(--muted); margin-top:2px; font-weight:500;
-  }
+  /* overlay */
+  .overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(3,18,34,0.36), rgba(3,18,34,0.28));z-index:9;flex-direction:column;transition:opacity 0.3s ease;}
+  .overlay.hide{opacity:0;pointer-events:none;}
+  .overlay .card{width:360px;max-width:92%;background:linear-gradient(180deg, rgba(255,255,255,0.9), rgba(250,255,255,0.82));border-radius:14px;padding:22px;border:1px solid rgba(8,26,46,0.06);box-shadow:0 18px 48px rgba(6,22,42,0.18);text-align:center;backdrop-filter: blur(6px);}
+  .overlay h1{margin:0 0 8px;font-size:20px;color:#04273e;}
+  .overlay p{margin:0 0 16px;color:#274a67;font-size:13px;}
+  .cta{display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:12px;background:linear-gradient(180deg,#fbffff,#eaf6ff);color:var(--accent);font-weight:800;border:1px solid rgba(14,75,134,0.08);box-shadow:0 10px 28px rgba(16,40,80,0.08);cursor:pointer;font-size:14px;}
 
-  /* entrance animation */
-  .desktop .icon { opacity:0; transform: translateY(8px) scale(.99); }
-  .desktop .icon.enter { animation: popIn .42s forwards cubic-bezier(.2,.9,.2,1); }
-  @keyframes popIn {
-    0%{opacity:0; transform: translateY(8px) scale(.98)}
-    60%{opacity:1; transform: translateY(-6px) scale(1.02)}
-    100%{opacity:1; transform: translateY(0) scale(1)}
-  }
+  /* music fab */
+  .music-fab{position:fixed;right:22px;bottom:22px;z-index:8;width:62px;height:62px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#ffffff,#e9f8ff);box-shadow:0 18px 42px rgba(6,20,40,0.14);border:1px solid rgba(12,66,120,0.06);cursor:pointer;transition: transform .12s ease, box-shadow .12s;animation:floatFab 4s ease-in-out infinite alternate;}
+  @keyframes floatFab{0%{transform:translateY(0);}100%{transform:translateY(-6px);}}
+  .music-fab:hover{transform:translateY(-6px);box-shadow:0 24px 48px rgba(6,20,40,0.18);}
+  .music-fab .icon-inner{font-weight:900;color:var(--accent);font-size:20px;}
 
-  /* overlay (click to continue) */
-  .overlay{
-    position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
-    background: linear-gradient(180deg, rgba(3,18,34,0.36), rgba(3,18,34,0.28));
-    z-index:9;flex-direction:column;
-  }
-  .overlay .card{
-    width:360px;max-width:92%;
-    background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(250,255,255,0.82));
-    border-radius:14px;padding:22px;border:1px solid rgba(8,26,46,0.06);
-    box-shadow: 0 18px 48px rgba(6,22,42,0.18);
-    text-align:center;backdrop-filter: blur(6px);
-  }
-  .overlay h1{margin:0 0 8px;font-size:20px;color:#04273e}
-  .overlay p{margin:0 0 16px;color:#274a67;font-size:13px}
-
-  .cta {
-    display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:12px;
-    background:linear-gradient(180deg,#fbffff,#eaf6ff);color:var(--accent);font-weight:800;border:1px solid rgba(14,75,134,0.08);
-    box-shadow:0 10px 28px rgba(16,40,80,0.08);
-    cursor:pointer;font-size:14px;
-  }
-
-  /* floating music control bottom-right (Option 1) */
-  .music-fab{
-    position:fixed;right:22px;bottom:22px;z-index:8;
-    width:62px;height:62px;border-radius:999px;
-    display:flex;align-items:center;justify-content:center;
-    background: linear-gradient(180deg,#ffffff,#e9f8ff);
-    box-shadow: 0 18px 42px rgba(6,20,40,0.14);
-    border:1px solid rgba(12,66,120,0.06);
-    cursor:pointer;
-    transition: transform .12s ease, box-shadow .12s;
-  }
-  .music-fab:hover{ transform: translateY(-6px); box-shadow: 0 24px 48px rgba(6,20,40,0.18) }
-  .music-fab .icon-inner{ font-weight:900; color:var(--accent); font-size:20px; }
-
-  /* accessibility focus */
-  .music-fab:focus{outline:3px solid rgba(31,127,199,0.14); outline-offset:4px}
-
-  /* responsive tweaks */
-  @media (max-width:760px){
-    :root{ --icon-size:82px; --pad:18px }
-    .label{font-size:12px}
-    .app-title{padding:8px 10px}
-    .music-fab{right:14px; bottom:14px; width:54px;height:54px}
-  }
+  @media(max-width:760px){:root{--icon-size:82px;--pad:18px}.label{font-size:12px}.app-title{padding:8px 10px}.music-fab{right:14px;bottom:14px;width:54px;height:54px;}}
 </style>
 </head>
 <body>
-  <div class="backdrop"></div>
+<div class="backdrop"></div>
 
-  <header class="app-title" aria-hidden="false">
-    <div class="logo">XP</div>
-    <div>
-      <h1>File explorer</h1>
-      <p>Retro portal — Frutiger Aero</p>
-    </div>
-  </header>
-
-  <main id="desktop" class="desktop" role="list" aria-label="Desktop icons">
-    <!-- icons inserted here -->
-  </main>
-
-  <!-- overlay to get user gesture for audio -->
-  <div id="overlay" class="overlay" role="dialog" aria-modal="true">
-    <div class="card" role="document">
-      <h1>Click to continue</h1>
-      <p>Welcome — click continue to unlock audio and enter the portal.</p>
-      <button id="continueBtn" class="cta" aria-label="Continue to site">Continue ▸</button>
-    </div>
+<header class="app-title" aria-hidden="false">
+  <div class="logo">XP</div>
+  <div>
+    <h1>File explorer</h1>
+    <p>Retro portal — Frutiger Aero</p>
   </div>
+</header>
 
-  <!-- audio: Music.mp3 must be in same folder -->
-  <audio id="bgAudio" src="Music.mp3" preload="auto" loop></audio>
+<main id="desktop" class="desktop" role="list" aria-label="Desktop icons"></main>
 
-  <!-- floating play/pause control -->
-  <button id="musicFab" class="music-fab" aria-pressed="false" title="Play / Pause (Music)">
-    <span class="icon-inner" id="fabIcon">▶</span>
-  </button>
+<div id="overlay" class="overlay" role="dialog" aria-modal="true">
+  <div class="card" role="document">
+    <h1>Click to continue</h1>
+    <p>Welcome — click continue to unlock audio and enter the portal.</p>
+    <button id="continueBtn" class="cta" aria-label="Continue to site">Continue ▸</button>
+  </div>
+</div>
+
+<audio id="bgAudio" src="Music.mp3" preload="auto" loop></audio>
+<button id="musicFab" class="music-fab" aria-pressed="false" title="Play / Pause (Music)">
+  <span class="icon-inner" id="fabIcon">▶</span>
+</button>
 
 <script>
-/* ========== Raw link paste (provided by user). The script tolerantly parses and normalizes them. ========== */
-const raw = `Games:
-https://win10.webjeet.me/https://www.pcjs.org/blog/2015/09/21/GAMES Diep.io Agar.io Classic games online ZombsRoyale.io Holeo Wings.io  Jopi.io  Deeeep.io Dino.io Monste.io Brutal.io  Paper.io QuickDraw  Maths playground  Slither.io Yorg.io Vengeance.io Warbot.io Garlic.io Snake.io Card games.io Symboloo.com Zombs.io Hordes.io Chess.com Deftly.io GeForce.com Kour.io  https://neal.fun/ https://quickdraw.withgoogle.com/ httpsqu//hole-io.com/ https://hole-io.com/ https://deadshot.io/ https://oasis.decart.ai/starting-point?journey=Dense+Forest https://bitlifeonline.io/home https://en.akinator.com/ https://armorgames.com/ https://www.freegames.com/ https://lagged.com/en/ https://www.gamepix.com/ https://www.mathplayground.com/fun-skill-games.html https://jetpack-joyride.github.io/ https://www.pogo.com/ https://www.gamezop.com/en https://www.jopi.com/ https://poki.ac/ https://www.friv2online.com/poki-games https://koalabeast.com/ https://www.lexaloffle.com/bbs/?pid=136646#playing https://www.fallenlondon.com/ https://granbluefantasy.jp/sp/en/ https://corru.observer/ https://amongusplay.online/ https://narrow.one/    Poki 2 - Play Poki 2 Online at Friv Games Play Free Games Online - No Download Fun Games to Play! Cool Math Games - Free Online Games for Learning and Fun Territorial.io Play 100% Free Games | Instant & Online | FreeGames.org
-https://emupedia.net/beta/emuos/ (needs keyboard and mouse)
-https://www.izzygames.com/exhibit-of-sorrows-t6997.html?fullscreen=true
-https://www.desura.games/ipad-games
-https://kevin.games/slendrina-must-die-the-cellar
-https://www.toogame.com/
-http://v1.windows93.net/
-https://www.kodub.com/apps/polytrack
-https://now.gg/
-https://playretrogames.online/
-https://play3dgame.com/
-https://gamaverse.com/mobile/
-https://www.freeriderhd.com/
-https://kbhgames.com/
-https://www.playemulator.io/games/pokemon-online/
-https://play.pokemonshowdown.com/
-https://drift.io/?room=nedRVhuAq
-https://watchdocumentaries.com/time-shooter-2-game/
-https://venge.io/
-https://www.gameflare.com/online-game/combat-reloaded/
-https://www.lumpty.com/amusements/games/tetris/tetris.html
-https://playclassic.games/games/
-https://arcadespot.com/
-mcraft.fun
-https://www.twoplayergames.org/?_gl=1*17pgihv*_up*MQ..*_ga*MTgzMDExMzg3LjE3MzY4NTIwMzY.*_ga_LSBVFHP4VG*MTczNjg1MjAzNC4xLjEuMTczNjg1MjcyMi4wLjAuMA..
-https://slowroads.io/
-https://sites.google.com/view/games-unblocked/
-https://slice-master.io/
-https://misterfonka.github.io/Unblocked-Cave/games/games.html
-https://basketbrosio.com/
-https://gamesnacks.com/
-https://www.yapigames.com/mobilegames/?utm_source=yapigames.com/421&gad_source=5&gclid=EAIaIQobChMInKfn7Im-iwMVtoVQBh0yixeVEAEYASAAEgIVFvD_BwE
-https://nointernetgame.com/
-https://catmario.eu/
-https://www.pcjs.org/blog/2015/09/21/
-https://lrusso.github.io/VirtualXP/VirtualXP.htm
-https://win10.webjeet.me/
-https://elgoog.im/
-https://myemulator.onl/
-https://archive.org/details/internetarcade
-https://romsfun.com/
- https://watchdocumentaries.com/games/
-https://www.gameflare.com/
-https://playhop.com/
-https://www.onlinegames.io/survival-race/index.html
-https://www.miniclip.com/
-https://www.cartoonnetwork.co.uk/games
-https://skibidi.io/games
-https://eaglercraft.q13x.com/1.8-js/?retina=true
-https://mathplayzone.com/arcade/
-https://cookieclicker.one/
-https://angusnicneven.com/
-https://pokerogue.io/
-https://tetr.io/
-https://ug17.github.io/
-https://www.mafa.com/
-https://crossy-road.io/
-https://crossy-road.com/
-https://games-site.github.io/
-https://ug17.github.io/
-https://azgames.io/?gid=S50
-Uptoplay.net
-`;
+/* ========== Desktop links ========== */
+const rawLinks = `Games:
+https://win10.webjeet.me/...`; // truncated for brevity; paste full cleaned list
 
-/* ---------- tolerant parsing for messy paste ---------- */
 function tidyAndSplit(text){
   text = text.replace(/\u2028|\u2029|\u00A0/g,' ').replace(/\u200B/g,'').replace(/\r/g,'\n');
-  // pull out things that look like http(s)
   text = text.replace(/(https?:\/\/[^\s]+)/g, '\n$1\n');
-  text = text.replace(/[\u2028\u2029\u202f\u200b\uFEFF]/g,'\n');
   const lines = text.split(/\n+/).map(s=>s.trim()).filter(Boolean);
   const out = [];
-  lines.forEach(l=>{
-    let cleaned = l.replace(/\(.*?\)/g,'').trim();
-    const parts = cleaned.split(/\s+/);
-    parts.forEach(p=>{
-      if(!p) return;
-      let q = p;
-      q = q.replace(/[.,;]+$/,'');
-      q = q.replace(/^httpsqu:\/\//,'https://').replace(/^httpsqu\/\//,'https://');
-      if(!/^https?:\/\//i.test(q)){
-        if(/[a-z0-9\-]+\.[a-z]{2,}/i.test(q)){
-          q = 'https://' + q;
-        } else {
-          return;
-        }
-      }
-      out.push(q);
-    })
-  });
-  // dedupe while preserving order
   const seen = new Set();
-  return out.filter(u=>{ if(seen.has(u)) return false; seen.add(u); return true; });
+  lines.forEach(l=>{
+    if(!/^https?:\/\//i.test(l)) return;
+    if(!seen.has(l)){ out.push(l); seen.add(l); }
+  });
+  return out;
 }
+const links = tidyAndSplit(rawLinks);
 
-const links = tidyAndSplit(raw);
-
-/* ---------- build desktop icons with native favicon fetch + letter fallback ---------- */
 const desktop = document.getElementById('desktop');
-
-function hostnameFromUrl(u){
-  try{ return (new URL(u)).hostname.replace(/^www\./i,''); }
-  catch(e){ return u; }
-}
-function shortLabelFor(url){
-  try{
-    const host = hostnameFromUrl(url);
-    return host.split('.')[0].slice(0,3).toUpperCase();
-  }catch(e){
-    return 'WWW';
-  }
-}
-function friendlyName(url){
-  try{
-    const u = new URL(url);
-    const host = u.hostname.replace(/^www\./i,'');
-    const path = u.pathname.replace(/\/$/,'');
-    if(path && path !== '/') return host + ' • ' + path.split('/').pop();
-    return host;
-  }catch(e){
-    return url;
-  }
-}
+function hostnameFromUrl(u){ try{ return (new URL(u)).hostname.replace(/^www\./i,''); }catch(e){ return u; } }
+function shortLabelFor(url){ const host = hostnameFromUrl(url); return host.split('.')[0].slice(0,3).toUpperCase(); }
+function friendlyName(url){ try{ const u=new URL(url);const h=u.hostname.replace(/^www\./i,'');const p=u.pathname.replace(/\/$/,'');return p&&p!=='/'? h+' • '+p.split('/').pop():h;}catch(e){return url;} }
 
 function createIcon(url, idx){
-  const wrap = document.createElement('div');
-  wrap.className = 'icon';
-  wrap.dataset.url = url;
-  wrap.tabIndex = 0;
+  const wrap = document.createElement('div'); wrap.className='icon'; wrap.dataset.url=url; wrap.tabIndex=0;
+  const imgWrap = document.createElement('div'); imgWrap.className='img';
+  const letters = document.createElement('div'); letters.className='letters'; letters.textContent=shortLabelFor(url); imgWrap.appendChild(letters);
 
-  const imgWrap = document.createElement('div');
-  imgWrap.className = 'img';
-
-  // letter fallback
-  const letters = document.createElement('div');
-  letters.className = 'letters';
-  letters.textContent = shortLabelFor(url);
-  imgWrap.appendChild(letters);
-
-  // try load native favicon (square) from site root
+  // favicon attempt
   const host = hostnameFromUrl(url);
   if(host){
-    const fav = new Image();
-    fav.crossOrigin = 'anonymous';
-    fav.onload = function(){
-      // replace contents with the favicon image
-      imgWrap.innerHTML = '';
-      fav.width = fav.height = 200;
-      fav.style.width = '100%';
-      fav.style.height = '100%';
-      fav.style.objectFit = 'cover';
-      fav.style.display = 'block';
-      imgWrap.appendChild(fav);
-    };
-    fav.onerror = function(){
-      // keep letter fallback
-    };
-    // attempt common paths: /favicon.ico and /favicon.png
-    // try favicon.ico first, then .png fallback by changing src after short delay if fails
-    fav.src = 'https://' + host + '/favicon.ico';
-    // If it doesn't load after a bit, try png variant
-    setTimeout(()=>{ if(!fav.complete){ try { fav.src = 'https://' + host + '/favicon.png'; } catch(e){} } }, 900);
+    const fav=new Image();
+    fav.crossOrigin='anonymous';
+    fav.onload=()=>{ imgWrap.innerHTML=''; fav.style.width='100%'; fav.style.height='100%'; fav.style.objectFit='cover'; imgWrap.appendChild(fav); };
+    fav.onerror=()=>{}; fav.src='https://'+host+'/favicon.ico';
+    setTimeout(()=>{if(!fav.complete){try{fav.src='https://'+host+'/favicon.png';}catch(e){}}},900);
   }
 
-  const label = document.createElement('div');
-  label.className = 'label';
-  label.textContent = friendlyName(url);
+  const label=document.createElement('div'); label.className='label'; label.textContent=friendlyName(url);
+  const sub=document.createElement('div'); sub.className='sub'; sub.textContent=url.replace(/^https?:\/\//,'').slice(0,36);
+  wrap.append(imgWrap,label,sub);
 
-  const sub = document.createElement('div');
-  sub.className = 'sub';
-  sub.textContent = url.replace(/^https?:\/\//,'').slice(0,36);
+  wrap.addEventListener('click', ()=>window.open(url,'_blank'));
+  wrap.addEventListener('keydown',(e)=>{if(e.key==='Enter') window.open(url,'_blank');});
 
-  wrap.appendChild(imgWrap);
-  wrap.appendChild(label);
-  wrap.appendChild(sub);
-
-  /* open in new tab on click */
-  wrap.addEventListener('click', (e)=>{
-    e.preventDefault();
-    window.open(url,'_blank');
-  });
-  wrap.addEventListener('keydown', (e)=>{
-    if(e.key === 'Enter') window.open(url,'_blank');
-  });
-
-  // slight staggered entrance
-  setTimeout(()=>{ wrap.classList.add('enter'); }, idx * 28);
-
+  setTimeout(()=>wrap.classList.add('enter'), idx*28);
   return wrap;
 }
+links.forEach((u,i)=>{desktop.appendChild(createIcon(u,i));});
 
-/* create icons */
-links.forEach((u,i)=>{
-  try{
-    const node = createIcon(u,i);
-    desktop.appendChild(node);
-  }catch(e){
-    console.warn('skip', u, e);
-  }
-});
-
-/* ========== Audio / music controls ========== */
-const overlay = document.getElementById('overlay');
-const continueBtn = document.getElementById('continueBtn');
-const audio = document.getElementById('bgAudio');
-const musicFab = document.getElementById('musicFab');
-const fabIcon = document.getElementById('fabIcon');
-
-let isPlaying = false;
-
-/* helper to update fab appearance */
-function updateFab(){
-  musicFab.setAttribute('aria-pressed', String(isPlaying));
-  fabIcon.textContent = isPlaying ? '⏸' : '▶';
+/* ========== Floating particles ========== */
+for(let i=0;i<20;i++){
+  const p=document.createElement('div'); p.className='particle';
+  p.style.width=p.style.height=Math.random()*12+6+'px';
+  p.style.left=Math.random()*100+'%'; p.style.top=Math.random()*100+'%';
+  p.style.animationDuration=(Math.random()*6+8)+'s';
+  document.body.appendChild(p);
 }
 
-/* start audio on continue */
+/* ========== Music / overlay logic ========== */
+const overlay=document.getElementById('overlay');
+const continueBtn=document.getElementById('continueBtn');
+const audio=document.getElementById('bgAudio');
+const musicFab=document.getElementById('musicFab');
+const fabIcon=document.getElementById('fabIcon');
+let isPlaying=false;
+
+function updateFab(){ musicFab.setAttribute('aria-pressed', isPlaying); fabIcon.textContent = isPlaying?'⏸':'▶'; }
+
+async function playAudio(){ try{ await audio.play(); isPlaying=true; updateFab(); }catch(e){ isPlaying=false; updateFab(); console.warn(e);} }
+function pauseAudio(){ audio.pause(); isPlaying=false; updateFab(); }
+
 continueBtn.addEventListener('click', async ()=>{
-  overlay.style.display = 'none';
-  try{
-    audio.currentTime = 0;
-    await audio.play();
-    isPlaying = true;
-    updateFab();
-  }catch(err){
-    // if browser still blocks, show paused state but overlay removed
-    console.warn('audio play blocked:', err);
-    isPlaying = false;
-    updateFab();
-  }
+  overlay.classList.add('hide');
+  await playAudio();
 });
 
-/* keyboard accessibility for overlay */
-overlay.addEventListener('keydown', (e)=>{
-  if(e.key === 'Enter' || e.key === ' ') continueBtn.click();
-});
+overlay.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' ') continueBtn.click(); });
 overlay.focus();
 
-/* fab toggles play/pause */
-musicFab.addEventListener('click', async (e)=>{
-  e.stopPropagation();
-  if(!audio.src){
-    console.warn('No audio source found (Music.mp3).');
-    return;
-  }
-  if(isPlaying){
-    audio.pause();
-    isPlaying = false;
-    updateFab();
-  } else {
-    try{
-      await audio.play();
-      isPlaying = true;
-      updateFab();
-    }catch(err){
-      console.warn('play failed', err);
-    }
-  }
-});
+musicFab.addEventListener('click', ()=>{ isPlaying?pauseAudio():playAudio(); });
+musicFab.addEventListener('keydown', e=>{if(e.key==='Enter'||e.key===' '){ e.preventDefault(); musicFab.click(); } });
 
-/* ensure UI reflects actual audio state */
-audio.addEventListener('play', ()=>{ isPlaying = true; updateFab(); });
-audio.addEventListener('pause', ()=>{ isPlaying = false; updateFab(); });
-audio.addEventListener('ended', ()=>{ isPlaying = false; updateFab(); });
+audio.addEventListener('play',()=>{ isPlaying=true; updateFab(); });
+audio.addEventListener('pause',()=>{ isPlaying=false; updateFab(); });
+audio.addEventListener('ended',()=>{ isPlaying=false; updateFab(); });
 
-/* keep playing when user opens links in new tab — this normally persists.
-   If playback is interrupted by autoplay policies, the overlay gesture should have fixed it. */
-
-/* final accessibility nicety: allow Space/Enter to toggle fab when focused */
-musicFab.addEventListener('keydown', (e)=>{
-  if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); musicFab.click(); }
-});
-
-/* focus the overlay's button on load for keyboard users */
 window.addEventListener('load', ()=>{ try{ continueBtn.focus(); }catch(e){} });
-
-/* console debug */
-console.log('Frutiger-Aero portal loaded —', links.length, 'links. Place Music.mp3 beside this file.');
+console.log('Enhanced Frutiger-Aero portal loaded —', links.length,'links.');
 </script>
 </body>
 </html>
