@@ -1,211 +1,112 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>File explorer</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XP Link Hub</title>
 <style>
-  :root{
-    --bg-top:#e9f5ff;
-    --bg-bottom:#e6f1ff;
-    --accent:#1f7fc7;
-    --card-shadow: 0 8px 28px rgba(16,40,80,0.12);
-    --icon-size:96px;
-    --icon-gap:22px;
-    --pad:36px;
-    --muted:#4b6b86;
-  }
-
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;
-    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-    background: linear-gradient(180deg,var(--bg-top), var(--bg-bottom));
-    color:#0b2340;
-    overflow:hidden;
-  }
-
-  .backdrop {
-    position:fixed;inset:0;pointer-events:none;
-    background:
-      radial-gradient(circle at 20% 10%, rgba(255,255,255,0.9), rgba(255,255,255,0) 8%),
-      radial-gradient(circle at 80% 90%, rgba(200,235,255,0.6), rgba(200,235,255,0) 18%);
-    mix-blend-mode:soft-light;
-    z-index:0;
-  }
-
-  .desktop {
-    position:relative;
-    height:100vh;
-    padding:calc(var(--pad) + 52px) var(--pad) var(--pad) var(--pad);
-    display:flex;
-    flex-wrap:wrap;
-    gap:var(--icon-gap);
-    align-content:flex-start;
-    overflow:auto;
-    -webkit-overflow-scrolling:touch;
-    z-index:1;
-  }
-
-  header.app-title{
-    position:fixed;
-    left:50%;
-    transform:translateX(-50%);
-    top:18px;
-    z-index:6;
-    display:flex;
-    align-items:center;
-    gap:14px;
-    padding:10px 14px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.74));
-    border-radius:14px;
-    box-shadow:var(--card-shadow);
-    border:1px solid rgba(18,86,140,0.06);
-    backdrop-filter: blur(6px);
-  }
-  .app-title .logo{
-    width:36px;height:36px;border-radius:8px;background:linear-gradient(180deg,#fff,#e8f6ff);
-    display:flex;align-items:center;justify-content:center;color:var(--accent);font-weight:800;
-    font-size:14px;box-shadow:inset 0 -4px 12px rgba(0,0,0,0.03);
-  }
-  .app-title h1{margin:0;font-size:16px;letter-spacing:0.4px;color:#06324f;font-weight:700;}
-  .app-title p{margin:0;font-size:12px;color:var(--muted)}
-
-  .icon {
-    width: var(--icon-size);
-    height: 136px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:flex-start;
-    gap:8px;
-    cursor:pointer;
-    transform-origin:center;
-    transition: transform .18s cubic-bezier(.2,.9,.2,1), filter .18s;
-    user-select:none;
-  }
-  .icon:focus{outline:none; transform: translateY(-6px) scale(1.02); box-shadow:0 12px 30px rgba(12,38,64,0.08);}
-  .icon:hover{ transform: translateY(-8px) scale(1.03); filter:brightness(1.02) saturate(1.02); }
-
-  .img {
-    width:var(--icon-size);
-    height:var(--icon-size);
-    border-radius:14px;
-    background: linear-gradient(180deg,#ffffff,#e8f9ff);
-    display:flex;align-items:center;justify-content:center;
-    box-shadow: 0 8px 20px rgba(12,38,64,0.08), inset 0 -4px 10px rgba(255,255,255,0.85);
-    overflow:hidden;
-    transition: transform .28s cubic-bezier(.2,.9,.2,1);
-  }
-  .img img{ width:100%; height:100%; object-fit:cover; display:block; }
-
-  .letters {
-    font-weight:800;font-size:20px;color:var(--accent);
-    letter-spacing:1px;
-  }
-
-  .label {
-    width:var(--icon-size);
-    text-align:center;
-    font-size:13px;
-    color:#083049;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    font-weight:600;
-    letter-spacing:0.2px;
-  }
-  .sub {
-    font-size:11px;color:var(--muted); margin-top:2px; font-weight:500;
-  }
-
-  .desktop .icon { opacity:0; transform: translateY(8px) scale(.99); }
-  .desktop .icon.enter { animation: popIn .42s forwards cubic-bezier(.2,.9,.2,1); }
-  @keyframes popIn {
-    0%{opacity:0; transform: translateY(8px) scale(.98)}
-    60%{opacity:1; transform: translateY(-6px) scale(1.02)}
-    100%{opacity:1; transform: translateY(0) scale(1)}
-  }
-
-  @media (max-width:760px){
-    :root{ --icon-size:82px; --pad:18px }
-    .label{font-size:12px}
-    .app-title{padding:8px 10px}
-  }
+    * {margin:0; padding:0; box-sizing:border-box; font-family:"Tahoma", sans-serif;}
+    body {background: linear-gradient(to bottom, #c0d8f0, #eaf2fc); color:#000; padding:20px;}
+    h1 {text-align:center; margin-bottom:30px; font-size:2.5em; color:#003366; text-shadow:1px 1px #fff;}
+    .section {margin-bottom:40px;}
+    .section h2 {margin-bottom:15px; font-size:1.8em; color:#004080; border-bottom:2px solid #004080; padding-bottom:5px;}
+    .link-grid {display:grid; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); gap:15px;}
+    .link-item {background:#e0eaff; border:2px solid #004080; border-radius:5px; padding:15px; text-align:center; transition: all 0.2s ease; cursor:pointer; display:flex; flex-direction:column; align-items:center;}
+    .link-item:hover {transform: translateY(-5px) scale(1.05); box-shadow:0 5px 15px rgba(0,0,0,0.2); background:#f0f8ff;}
+    .link-item img {width:50px; height:50px; margin-bottom:10px;}
+    .link-item span {font-size:0.95em; text-align:center;}
+    @keyframes fadeInUp {0% { opacity: 0; transform: translateY(20px);} 100% { opacity: 1; transform: translateY(0);}}
+    .animated {animation: fadeInUp 0.5s ease forwards;}
 </style>
 </head>
 <body>
-  <div class="backdrop"></div>
+<h1>Windows XP Link Hub</h1>
 
-  <header class="app-title">
-    <div class="logo">XP</div>
-    <div>
-      <h1>File explorer</h1>
-      <p>Retro portal — Frutiger Aero</p>
-    </div>
-  </header>
+<!-- Games Section -->
+<div class="section" id="games">
+    <h2>Games</h2>
+    <div class="link-grid" id="games-grid"></div>
+</div>
 
-  <main id="desktop" class="desktop" role="list" aria-label="Desktop icons">
-    <!-- icons inserted here -->
-  </main>
+<!-- Emulators / Retro Section -->
+<div class="section" id="emulators">
+    <h2>Emulators & Retro</h2>
+    <div class="link-grid" id="emulators-grid"></div>
+</div>
+
+<!-- Puzzle / Math / Learning -->
+<div class="section" id="puzzle">
+    <h2>Puzzle & Learning</h2>
+    <div class="link-grid" id="puzzle-grid"></div>
+</div>
+
+<!-- Misc / Fun -->
+<div class="section" id="misc">
+    <h2>Misc / Fun</h2>
+    <div class="link-grid" id="misc-grid"></div>
+</div>
 
 <script>
-const raw = `PUT YOUR LINKS HERE`;
+const games = [
+    {name: "Diep.io", url:"https://diep.io/", icon:"https://upload.wikimedia.org/wikipedia/en/4/41/Diep.io.png"},
+    {name: "Agar.io", url:"https://agar.io/", icon:"https://upload.wikimedia.org/wikipedia/en/1/1d/Agar.io_icon.png"},
+    {name: "Slither.io", url:"https://slither.io/", icon:"https://slither.io/images/apple-touch-icon.png"},
+    {name: "ZombsRoyale.io", url:"https://zombsroyale.io/", icon:"https://zombsroyale.io/favicon.ico"},
+    {name: "Hole.io", url:"https://hole-io.com/", icon:"https://hole-io.com/favicon.ico"},
+    {name: "Paper.io", url:"https://paper-io.com/", icon:"https://paper-io.com/favicon.ico"},
+    {name: "Math Playground", url:"https://www.mathplayground.com/fun-skill-games.html", icon:"https://www.mathplayground.com/favicon.ico"},
+    {name: "QuickDraw", url:"https://quickdraw.withgoogle.com/", icon:"https://quickdraw.withgoogle.com/favicon.ico"},
+    {name: "Zombs.io", url:"https://zombs.io/", icon:"https://zombs.io/favicon.ico"},
+    {name: "Chess.com", url:"https://www.chess.com/", icon:"https://www.chess.com/favicon.ico"},
+    {name: "Deftly.io", url:"https://deftly.io/", icon:"https://deftly.io/favicon.ico"},
+    // add more here
+];
 
-/* --- tolerant parsing --- */
-function tidyAndSplit(text){
-  text = text.replace(/\u2028|\u2029|\u00A0/g,' ').replace(/\u200B/g,'').replace(/\r/g,'\n');
-  text = text.replace(/(https?:\/\/[^\s]+)/g, '\n$1\n');
-  const lines = text.split(/\n+/).map(s=>s.trim()).filter(Boolean);
-  const out=[];
-  lines.forEach(l=>{
-    let cleaned = l.replace(/\(.*?\)/g,'').trim();
-    const parts=cleaned.split(/\s+/);
-    parts.forEach(p=>{
-      if(!p) return;
-      let q=p.replace(/[.,;]+$/,'').replace(/^httpsqu:\/\//,'https://').replace(/^httpsqu\/\//,'https://');
-      if(!/^https?:\/\//i.test(q)){
-        if(/[a-z0-9\-]+\.[a-z]{2,}/i.test(q)) q='https://'+q;
-        else return;
-      }
-      out.push(q);
+const emulators = [
+    {name: "Emupedia / EmuOS", url:"https://emupedia.net/beta/emuos/", icon:"https://emupedia.net/favicon.ico"},
+    {name: "Windows 93", url:"http://v1.windows93.net/", icon:"http://v1.windows93.net/favicon.ico"},
+    {name: "VirtualXP", url:"https://lrusso.github.io/VirtualXP/VirtualXP.htm", icon:"https://lrusso.github.io/VirtualXP/favicon.ico"},
+    {name: "PCJS", url:"https://www.pcjs.org/blog/2015/09/21/", icon:"https://www.pcjs.org/favicon.ico"},
+    {name: "Retro Games Online", url:"https://playretrogames.online/", icon:"https://playretrogames.online/favicon.ico"},
+];
+
+const puzzle = [
+    {name:"Symboloo", url:"https://symboloo.com/", icon:"https://symboloo.com/favicon.ico"},
+    {name:"Math Playzone", url:"https://mathplayzone.com/arcade/", icon:"https://mathplayzone.com/favicon.ico"},
+    {name:"Cookie Clicker", url:"https://cookieclicker.one/", icon:"https://cookieclicker.one/favicon.ico"},
+];
+
+const misc = [
+    {name:"Elgoog", url:"https://elgoog.im/", icon:"https://elgoog.im/favicon.ico"},
+    {name:"Akinator", url:"https://en.akinator.com/", icon:"https://en.akinator.com/favicon.ico"},
+    {name:"BitLife", url:"https://bitlifeonline.io/home", icon:"https://bitlifeonline.io/favicon.ico"},
+    {name:"Fun Games Online", url:"https://www.freegames.com/", icon:"https://www.freegames.com/favicon.ico"},
+];
+
+function renderLinks(links, containerId){
+    const grid = document.getElementById(containerId);
+    links.forEach((link,index)=>{
+        const a = document.createElement('a');
+        a.href = link.url;
+        a.target="_blank";
+        a.className='link-item animated';
+        a.style.animationDelay=`${index*0.05}s`;
+        const img = document.createElement('img');
+        img.src = link.icon || 'https://via.placeholder.com/50';
+        img.alt=link.name;
+        const span = document.createElement('span');
+        span.textContent=link.name;
+        a.appendChild(img);
+        a.appendChild(span);
+        grid.appendChild(a);
     });
-  });
-  const seen=new Set();
-  return out.filter(u=>{if(seen.has(u))return false;seen.add(u);return true;});
 }
 
-const links = tidyAndSplit(raw);
-const desktop = document.getElementById('desktop');
+renderLinks(games,'games-grid');
+renderLinks(emulators,'emulators-grid');
+renderLinks(puzzle,'puzzle-grid');
+renderLinks(misc,'misc-grid');
 
-function hostnameFromUrl(u){try{return(new URL(u)).hostname.replace(/^www\./i,'');}catch(e){return u;}}
-function shortLabelFor(url){try{const host=hostnameFromUrl(url);return host.split('.')[0].slice(0,3).toUpperCase();}catch(e){return 'WWW';}}
-function friendlyName(url){try{const u=new URL(url);const host=u.hostname.replace(/^www\./i,'');const path=u.pathname.replace(/\/$/,'');if(path && path!='/')return host+' • '+path.split('/').pop();return host;}catch(e){return url;}}
-
-function createIcon(url, idx){
-  const wrap=document.createElement('div'); wrap.className='icon'; wrap.dataset.url=url; wrap.tabIndex=0;
-  const imgWrap=document.createElement('div'); imgWrap.className='img';
-  const letters=document.createElement('div'); letters.className='letters'; letters.textContent=shortLabelFor(url);
-  imgWrap.appendChild(letters);
-  const host=hostnameFromUrl(url);
-  if(host){
-    const fav=new Image(); fav.crossOrigin='anonymous';
-    fav.onload=function(){imgWrap.innerHTML=''; fav.style.width='100%'; fav.style.height='100%'; fav.style.objectFit='cover'; fav.style.display='block'; imgWrap.appendChild(fav);}
-    fav.onerror=function(){};
-    fav.src='https://'+host+'/favicon.ico';
-    setTimeout(()=>{if(!fav.complete){try{fav.src='https://'+host+'/favicon.png';}catch(e){}}},900);
-  }
-  const label=document.createElement('div'); label.className='label'; label.textContent=friendlyName(url);
-  const sub=document.createElement('div'); sub.className='sub'; sub.textContent=url.replace(/^https?:\/\//,'').slice(0,36);
-  wrap.appendChild(imgWrap); wrap.appendChild(label); wrap.appendChild(sub);
-  wrap.addEventListener('click',(e)=>{ e.preventDefault(); window.open(url,'_blank'); });
-  wrap.addEventListener('keydown',(e)=>{ if(e.key==='Enter') window.open(url,'_blank'); });
-  setTimeout(()=>{wrap.classList.add('enter');}, idx*28);
-  return wrap;
-}
-
-links.forEach((u,i)=>{try{desktop.appendChild(createIcon(u,i));}catch(e){console.warn('skip',u,e);}});
 </script>
 </body>
 </html>
