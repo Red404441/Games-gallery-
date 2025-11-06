@@ -46,11 +46,14 @@ h1 {
 .tab-content {
     display:none;
     padding:15px;
-}
-.tab-content.active {
+    max-height:400px; /* Limit visible area */
+    overflow-y:auto; /* Scroll for extra links */
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
     gap:12px;
+}
+.tab-content.active {
+    display:grid;
 }
 .link-item {
     background:#f0f8ff;
@@ -104,7 +107,7 @@ h1 {
 </div>
 
 <script>
-// Tab functionality
+// Tabs
 const tabs = document.querySelectorAll('.tab');
 tabs.forEach(tab => {
     tab.addEventListener('click', () => {
@@ -115,37 +118,44 @@ tabs.forEach(tab => {
     });
 });
 
-// All links arrays (example: truncated for brevity, use your full lists)
+// Example: first few links per category (replace with all your links)
 const games = [
 {name:"Diep.io", url:"https://diep.io/"},
 {name:"Agar.io", url:"https://agar.io/"},
 {name:"Slither.io", url:"https://slither.io/"},
 {name:"ZombsRoyale.io", url:"https://zombsroyale.io/"},
 {name:"Hole.io", url:"https://hole-io.com/"},
-// ...add all other game links here
+{name:"Wings.io", url:"https://wings.io/"},
+{name:"Jopi.io", url:"https://jopi.io/"},
+{name:"Deeeep.io", url:"https://deeeep.io/"},
+// Add all remaining links here
 ];
 
 const emulators = [
 {name:"Emupedia / EmuOS", url:"https://emupedia.net/beta/emuos/"},
 {name:"Windows 93", url:"http://v1.windows93.net/"},
 {name:"VirtualXP", url:"https://lrusso.github.io/VirtualXP/VirtualXP.htm"},
-// ...add all other emulator links
+{name:"Polytrack", url:"https://www.kodub.com/apps/polytrack"},
+// Add all remaining emulator links
 ];
 
 const puzzle = [
 {name:"Math Playground", url:"https://www.mathplayground.com/fun-skill-games.html"},
 {name:"QuickDraw", url:"https://quickdraw.withgoogle.com/"},
-// ...add all other puzzle/learning links
+{name:"Symboloo.com", url:"https://symboloo.com/"},
+{name:"Tetris", url:"https://www.lumpty.com/amusements/games/tetris/tetris.html"},
+// Add all remaining puzzle links
 ];
 
 const misc = [
 {name:"Elgoog", url:"https://elgoog.im/"},
 {name:"Akinator", url:"https://en.akinator.com/"},
 {name:"BitLife", url:"https://bitlifeonline.io/home"},
-// ...add all other misc/fun links
+{name:"Fallen London", url:"https://www.fallenlondon.com/"},
+// Add all remaining misc links
 ];
 
-// Function to render links with auto favicons
+// Render links
 function renderLinks(links, containerId){
     const container = document.getElementById(containerId);
     links.forEach((link,index)=>{
@@ -165,7 +175,6 @@ function renderLinks(links, containerId){
     });
 }
 
-// Render all tabs
 renderLinks(games,'games');
 renderLinks(emulators,'emulators');
 renderLinks(puzzle,'puzzle');
